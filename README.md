@@ -3,19 +3,11 @@ I am a current Sophmore at the University of Wisconsin-Madison majoring in Polit
 
 Is the gender pay gap affected by factors of one's education and one's working hours? I am using data from the IPUMS American Community Survey which supplies we with information on wages, weekly hour totals and the highest level of education one has completed. From this research, my hypothesis is that women will still earn less than men even if they work more hours or have a higher level of education. This hypothesis is based on well researched patterns in economics and sociology that women are more likely to end up in lower paying occupations and face discrimination in hiring and promotions. This usually results in lower returns to the same credentials as men. My explanatory variables are hours worked and educational attainment. My outcome variable is the wage or income measured in dollars. If the regression shows that the pay gap remains after controlling the hours and education variables, then that would support my hypothesis. If the gap disappears when these factors are added, then it would disprove my hypothesis.  
 
-View my inital data output
----
-title: "condensing data"
-author: "Clara Yoder"
-date: "2026-02-27"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r}
+condensing data
+Clara Yoder
+2026-02-27
+gender <- readRDS("gender_wage_data_small.rds")
+head(gender)
 ##   YEAR SAMPLE  SERIAL     CBSERIAL HHWT      CLUSTER GQ PERNUM PERWT SEX AGE
 ## 1 2024 202401  905988 2.024010e+12    9 2.024009e+12  3      1     9   2  63
 ## 2 2024 202401 1490438 2.024001e+12   51 2.024015e+12  1      2    97   1  32
@@ -31,9 +23,5 @@ knitr::opts_chunk$set(echo = TRUE)
 ## 5    6    64        0       0
 ## 6    7    71       17   12400
 
-gender <- readRDS("gender_wage_data_small.rds")
-head(gender)
-
-```
 
 
