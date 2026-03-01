@@ -2,3 +2,24 @@ I am a current Sophmore at the University of Wisconsin-Madison majoring in Polit
 
 
 Is the gender pay gap affected by factors of one's education and one's working hours? I am using data from the IPUMS American Community Survey which supplies we with information on wages, weekly hour totals and the highest level of education one has completed. From this research, my hypothesis is that women will still earn less than men even if they work more hours or have a higher level of education. This hypothesis is based on well researched patterns in economics and sociology that women are more likely to end up in lower paying occupations and face discrimination in hiring and promotions. This usually results in lower returns to the same credentials as men. My explanatory variables are hours worked and educational attainment. My outcome variable is the wage or income measured in dollars. If the regression shows that the pay gap remains after controlling the hours and education variables, then that would support my hypothesis. If the gap disappears when these factors are added, then it would disprove my hypothesis.  
+
+View my inital data output
+---
+title: "condensing data"
+author: "Clara Yoder"
+date: "2026-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+gender <- readRDS("gender_wage_data_small.rds")
+head(gender)
+
+```
+
+
