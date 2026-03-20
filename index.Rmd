@@ -1,0 +1,65 @@
+---
+title: "condensing data"
+author: "Clara Yoder"
+date: "2026-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(haven)
+gender <- readRDS("data/gender_wage_data_small.rds")
+head(gender)
+
+```
+
+
+```{r}
+str("gender_wage_data_small.rds")
+```
+
+## Comparing raw wages by gender 
+```{r}
+library(tidyverse)
+library(haven)
+
+gender <- gender |>
+  mutate(
+    INCWAGE = as.numeric(zap_labels(INCWAGE))
+  )
+gender |> 
+  group_by(SEX) |> 
+  summarize(
+    median_wage = median(as.numeric(INCWAGE), na.rm = TRUE)
+  )
+```
+
+
+```{r}
+library(haven)
+library(dplyr)
+
+gender <- gender |>
+  mutate(
+    SEX = as.numeric(zap_labels(SEX)),
+    INCWAGE = as.numeric(zap_labels(INCWAGE)),
+    SEX = factor(SEX, levels = c(1, 2), labels = c("Male", "Female"))
+  )
+gender_summary <- gender |>
+  group_by(SEX) |>
+  summarize(
+    median_wage = median(INCWAGE, na.rm = TRUE)
+  )
+```
+## Creating a visulaization
+
+```{r}
+ggplot(gender_summary, aes(x = SEX, y = median_wage, fill = SEX)) +
+  geom_col() +
+  scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452"))
+
+```
