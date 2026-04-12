@@ -60,6 +60,76 @@ gender_summary <- gender |>
 ```{r}
 ggplot(gender_summary, aes(x = SEX, y = median_wage, fill = SEX)) +
   geom_col() +
-  scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452"))
+  scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452")) +
+  labs(y = "Median Wage per Year")
 
 ```
+## Modifiying Education Variable
+```{r}
+gender <- gender |>
+  mutate(
+    EDUCD = as.numeric(haven:: zap_labels(EDUCD))
+  )
+```
+
+## Creating Education Groups
+```{r}
+gender <- gender |>
+  mutate(
+    educ_group = case_when(
+      EDUCD < 62 ~ "Less than High School",
+      EDUCD == 62 ~ "High School",
+      EDUCD %in% c(63, 64, 65) ~ "Some College",
+      EDUCD == 101 ~ "Bachelor's",
+      EDUCD > 101 ~ "Graduate Degree",
+      TRUE ~ NA_character_
+    )
+  )
+```
+## Creating the Bar Chart 
+```{r, fig.height=5, fig.width=7}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+
+gender_clean <- gender |>
+  filter(INCWAGE > 0, INCWAGE < 999999)
+
+
+education_summary <- gender_clean |>
+
+  filter(!is.na(educ_group)) |>
+  group_by(educ_group, SEX) |>
+  summarize(
+    median_wage = median(INCWAGE, na.rm = TRUE),
+    median_hours = median(UHRSWORK, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  
+  complete(
+  educ_group,
+  SEX,
+  fill = list(median_wage = 0)
+)
+
+ggplot(education_summary, aes(x = educ_group, y = median_wage, fill = SEX)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452")) +
+
+  coord_cartesian(ylim = c(0, 150000)) +
+  labs(
+    title = "Median Wage by Education Level and Gender",
+    x = "Education Level",
+    y = "Median Wage per Year",
+    fill = "Gender"
+  ) + scale_y_continuous(
+  breaks = seq(0, 150000, 25000),
+  labels = scales::comma
+)
+
+lm(INCWAGE ~ SEX * educ_group, data = gender_clean)
+```
+## Regression Analysis
+
+The results from the regression show a clear wage gap across all levels of education. The coefficient for women with a bachelors degree, is at -46,148. This value is negative and a large number which shows that even when men and women obtain the same degree, women earn a lot less. The education coefficients also show that wages increase with men obtaining a higher education and this shows how the gender pay gap changes at each level. For example, men with graduate degrees earn $23,942 more than men with bachelors degrees while men with less than a high school education earn about $67,612 less. What stands out to me from this regression is that the pay gap is smaller among people who have lower education but becomes larger the more educated someone is. The gap shrinks by $23,174 with women who have less than a high school degree, but becomes much larger when you look at higher degrees. At the graduate level, women make -$41,898 less than men. Instead of education narrowing this gap it actually increases it. This reflects what is presented on my graph which shows the difference between mens and womens median wages grows at various levels of education. 
