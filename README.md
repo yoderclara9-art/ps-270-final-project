@@ -5,7 +5,5 @@ Is the gender pay gap affected by factors of one's education? I am using data fr
 In this data analysis, gender is the explanatory variable and education level are added to see if they help to explain or change the size of the gender pay gap. My outcome variable is the wage or income measured in dollars. If the regression shows that the pay gap remains after controlling the education variables, then that would support my hypothesis. If the gap disappears when these factors are added, then it would disprove my hypothesis.  
 
 
-<img width="950" height="610" alt="image" src="https://github.com/user-attachments/assets/ab763426-7aaa-4dfc-94e5-eb6afab1bccf" />
-
 
 
