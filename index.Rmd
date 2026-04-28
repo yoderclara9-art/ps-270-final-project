@@ -8,8 +8,13 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+##Introduction
+This project examines how the gender wage gap varies across education levels using data from the American Community Survey. I compare average wages across gender and education groups and estimate a regression model with an interaction between gender and education. The goal is to understand whether higher education narrows or widens the age gap. 
+
+# Data and Methods 
 ## Loading the IMPUMS Data
-```{r}
+I began by loading the wage and demographic data from the American Community Survey, which includes information on income, gender and education.
+```{r, echo=FALSE}
 library(tidyverse)
 library(haven)
 gender <- readRDS("data/gender_wage_data_small.rds")
@@ -18,12 +23,13 @@ head(gender)
 ```
 
 
-```{r}
+```{r, echo=FALSE}
 str("gender_wage_data_small.rds")
 ```
 
 ## Raw Wage Differences by Gender
-```{r}
+Before running any official models, I analyzed the simple differences in wages between men and women to get an initial idea of the gender gap.
+```{r, echo=FALSE}
 library(tidyverse)
 library(haven)
 
@@ -34,15 +40,13 @@ gender <- gender |>
 gender |> 
   group_by(SEX) |> 
   summarize(
-    median_wage = median(as.numeric(INCWAGE), na.rm = TRUE)
+    mean_wage = mean(as.numeric(INCWAGE), na.rm = TRUE)
   )
-```
-```{r}
-names(gender)
 ```
 
 ## Data Cleaning and Preparing Variables
-```{r}
+I converted the variables into numeric and factor formats so that they can be used correctly in the calculations and regression models. 
+```{r, echo=FALSE}
 library(haven)
 library(dplyr)
 
@@ -58,24 +62,26 @@ gender_summary <- gender |>
     mean_wage = mean(INCWAGE, na.rm = TRUE)
   )
 ```
+# Descriptive Results
 ## Visualizing Gender Differences in Wages 
 
-```{r}
+```{r, echo=FALSE}
 ggplot(gender_summary, aes(x = SEX, y = mean_wage, fill = SEX)) +
   geom_col() +
   scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452"))
 
 ```
 
-## Modifiying Education Variable
-```{r}
+## Modifying Education Variable
+```{r, echo=FALSE}
 gender <- gender |>
   mutate(
     EDUCD = as.numeric(haven:: zap_labels(EDUCD))
   )
 ```
 ##Creating Education Groups
-```{r}
+The raw data on education codes are very detailed so I grouped them into broader categories to make the results easier to understand. 
+```{r, echo=FALSE}
 gender <- gender |>
   mutate(
     educ_group = case_when(
@@ -90,7 +96,8 @@ gender <- gender |>
 
 ```
 ## Visualization
-```{r, fig.height=5, fig.width=7, warning=FALSE}
+This plot shows that the average wages for men and women at each education level. It provides a overview before the regression model. This helps shown the overall pattern in the data before using the regression model.  
+```{r, fig.height=5, fig.width=7, warning=FALSE, echo=FALSE}
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -134,7 +141,7 @@ ggplot(education_summary, aes(x = educ_group, y = mean_wage, fill = SEX)) +
   labs(
     title = "Mean Wage by Education Level and Gender",
     x = "Education Level",
-    y = "Mean Wage per Year",
+    y = "Mean Annual Wage",
     fill = "Gender"
   ) + scale_y_continuous(
   breaks = seq(0, 150000, 25000),
@@ -142,13 +149,32 @@ ggplot(education_summary, aes(x = educ_group, y = mean_wage, fill = SEX)) +
 )
 
 ```
-## Regression
-```{r}
-lm(INCWAGE ~ SEX * educ_group, data = gender_clean)
+#Regression Model
+## Regression Output
+The regression model allows me to estimate how the gender wage gap changes across education levels by including an interaction between gender and education. 
+```{r, echo=FALSE}
+library(broom)
+tidy(lm(INCWAGE ~ SEX * educ_group, data = gender_clean)) |>
+  knitr::kable(
+    digits = 3,
+    caption = "Regression Results with Coefficients, Standard Errors, and p-values"
+  )
+
 ```
 ## Regression Analysis
 
-This regression uses gender as the main explanatory variable and looks at how the gender wage gap is different across various levels of education.The wage gap for graduate degree holders was calculated by adding the coefficient for "Female" to the interaction term "Female x Graduate Degree", which gives the total difference between women and men at that level of education. The results from the regression show a clear wage gap across all levels of education. The coefficient for women with a bachelors degree, is at -46,148. This value is negative and a large number which shows that even when men and women obtain the same degree, women earn a lot less. The education coefficients also show that wages increase with men obtaining a higher education and this shows how the gender pay gap changes at each level. For example, men with graduate degrees earn $23,942 more than men with bachelors degrees while men with less than a high school education earn about $67,612 less. What stands out to me from this regression is that the pay gap is smaller among people who have lower education but becomes larger the more educated someone is. The gap shrinks by $23,174 with women who have less than a high school degree, but becomes much larger when you look at higher degrees. At the graduate level, women make -$41,898 less than men. Instead of education narrowing this gap it actually increases it. This reflects what is presented on my graph which shows the difference between mens and womens mean wages grows at various levels of education. 
+This regression uses gender as the main explanatory variable and looks at how the gender wage gap is different across various levels of education.The wage gap for graduate degree holders was calculated by adding the coefficient for "Female" to the interaction term "Female x Graduate Degree", which gives the total difference between women and men at that level of education.
+
+The results from the regression show a clear wage gap across all levels of education.Most of the gender and education coefficients are statistically significant at (p < 0.05), which indicates that the estimated wage differences are unlikely to be due to random chance. The coefficient for women with a bachelors degree, is at -46,148. This value is negative and a large number which shows that even when men and women obtain the same degree, women earn a lot less. The education coefficients also show that wages increase with men obtaining a higher education and this shows how the gender pay gap changes at each level. For example, men with graduate degrees earn $23,942 more than men with bachelors degrees while men with less than a high school education earn about $67,612 less. What stands out to me from this regression is that the pay gap is smaller among people who have lower education but becomes larger the more educated someone is. The gap shrinks by $23,174 with women who have less than a high school degree, but becomes much larger when you look at higher degrees. At the graduate level, women make -$41,898 less than men. Instead of education narrowing this gap it actually increases it. This reflects what is presented on my graph which shows the difference between men's and women's mean wages grows at various levels of education. 
 
 ## Conclusion
+The results displayed should not be interpreted as casual. The regression shows associations between gender, education and wages, but it does not control for factors such as occupation, experience, hours worked, or industry. Because of this, the analysis cannot determine whether education causes the wage gap to widen, not only that the gap is larger at higher education levels in this data set. 
+
 The results that were produced from both the visualization and the regression indicate that gender is a clear predictor of someones wage levels regardless of their educational background. While wages increase for both men and women with high levels of education, the gender pay gap widens rather than narrows. Because of this, my hypothesis that women still earn less than men regardless of educational attainment is supported. Overall, education does not eliminate or even shrink the gender wage gap, but rather it amplifies it at the bachelors and graduate levels. 
+
+A limitation of this analysis is that the education categories are broad and income is skewed, which affects mean based comparisons. The dataset lacks information on job type, experience and part time workers. These limitations mean that the results should be interpreted as patterns rather than precise causal estimates. 
+
+
+
+```{r print-code, ref.label=knitr::all_labels(), echo = TRUE, eval=FALSE}
+```
