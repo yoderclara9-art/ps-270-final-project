@@ -8,12 +8,19 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-##Introduction
+## Introduction
+
 This project examines how the gender wage gap varies across education levels using data from the American Community Survey. I compare average wages across gender and education groups and estimate a regression model with an interaction between gender and education. The goal is to understand whether higher education narrows or widens the age gap. 
 
+I expect women to earn lower wages than men, even after accounting for education levels. Understanding gender wage disparities is important for evaluating labor market equity, informing public policy, and identifying whether wage gaps persist even after controlling for capital differences such as education. 
+
 # Data and Methods 
+
 ## Loading the IMPUMS Data
+
 I began by loading the wage and demographic data from the American Community Survey, which includes information on income, gender and education.
+
+
 ```{r, echo=FALSE}
 library(tidyverse)
 library(haven)
@@ -28,6 +35,7 @@ str("gender_wage_data_small.rds")
 ```
 
 ## Raw Wage Differences by Gender
+
 Before running any official models, I analyzed the simple differences in wages between men and women to get an initial idea of the gender gap.
 ```{r, echo=FALSE}
 library(tidyverse)
@@ -45,7 +53,12 @@ gender |>
 ```
 
 ## Data Cleaning and Preparing Variables
+
 I converted the variables into numeric and factor formats so that they can be used correctly in the calculations and regression models. 
+
+The outcome variable in this analysis is annual wage (INCWAGE), and the main predictors are gender (SEX, coded as Male/Female) and education level (educ_group, grouped into five levels)
+
+If the coefficient on the Female variable is negative and statistically significant (p< 0.05), this supports the hypothesis of a gender wage gap. If it is not statistically significant, the data does not provide evidence of a wage gap. 
 ```{r, echo=FALSE}
 library(haven)
 library(dplyr)
@@ -63,6 +76,7 @@ gender_summary <- gender |>
   )
 ```
 # Descriptive Results
+
 ## Visualizing Gender Differences in Wages 
 
 ```{r, echo=FALSE}
@@ -73,13 +87,15 @@ ggplot(gender_summary, aes(x = SEX, y = mean_wage, fill = SEX)) +
 ```
 
 ## Modifying Education Variable
+
 ```{r, echo=FALSE}
 gender <- gender |>
   mutate(
     EDUCD = as.numeric(haven:: zap_labels(EDUCD))
   )
 ```
-##Creating Education Groups
+## Creating Education Groups
+
 The raw data on education codes are very detailed so I grouped them into broader categories to make the results easier to understand. 
 ```{r, echo=FALSE}
 gender <- gender |>
@@ -96,6 +112,7 @@ gender <- gender |>
 
 ```
 ## Visualization
+
 This plot shows that the average wages for men and women at each education level. It provides a overview before the regression model. This helps shown the overall pattern in the data before using the regression model.  
 ```{r, fig.height=5, fig.width=7, warning=FALSE, echo=FALSE}
 library(dplyr)
@@ -149,8 +166,13 @@ ggplot(education_summary, aes(x = educ_group, y = mean_wage, fill = SEX)) +
 )
 
 ```
-#Regression Model
+
+This plot shows that women earn less than men at every level of education in the raw data. However, these differences do not account for other factors, so a regression is needed to test if the gap remains after controlling for education. 
+
+# Regression Model
+
 ## Regression Output
+
 The regression model allows me to estimate how the gender wage gap changes across education levels by including an interaction between gender and education. 
 ```{r, echo=FALSE}
 library(broom)
@@ -163,17 +185,35 @@ tidy(lm(INCWAGE ~ SEX * educ_group, data = gender_clean)) |>
 ```
 ## Regression Analysis
 
-This regression uses gender as the main explanatory variable and looks at how the gender wage gap is different across various levels of education.The wage gap for graduate degree holders was calculated by adding the coefficient for "Female" to the interaction term "Female x Graduate Degree", which gives the total difference between women and men at that level of education.
+This regression, considers whether the gender wage gap varies across different levels of education using an interaction variable between the two. The baseline in this case is men with less than high school education, and then this baseline is adjusted using coefficients for education, gender and the interaction variables. 
 
-The results from the regression show a clear wage gap across all levels of education.Most of the gender and education coefficients are statistically significant at (p < 0.05), which indicates that the estimated wage differences are unlikely to be due to random chance. The coefficient for women with a bachelors degree, is at -46,148. This value is negative and a large number which shows that even when men and women obtain the same degree, women earn a lot less. The education coefficients also show that wages increase with men obtaining a higher education and this shows how the gender pay gap changes at each level. For example, men with graduate degrees earn $23,942 more than men with bachelors degrees while men with less than a high school education earn about $67,612 less. What stands out to me from this regression is that the pay gap is smaller among people who have lower education but becomes larger the more educated someone is. The gap shrinks by $23,174 with women who have less than a high school degree, but becomes much larger when you look at higher degrees. At the graduate level, women make -$41,898 less than men. Instead of education narrowing this gap it actually increases it. This reflects what is presented on my graph which shows the difference between men's and women's mean wages grows at various levels of education. 
+Even though the descriptive results show that women earn less than men at every level of education, once education is included, the regression tells a different story. The main coefficient for Female is negative (–22,974), but is not statistically significant (p = 0.384). This means that when the categories of education are accounted for, there is no statistically significant proof that women earn less than men. 
+
+The education coefficients for Bachelor’s and Graduate Degree are statistically significant implying that wages increase tremendously for men as their education level rise. However, none of the gender–education interactions is statistically significant. This means that there no clear differences in wages that accrue from education between males and females in the model. 
+
+Point estimates also show that women continue to earn less than men at most levels of education, though these differences are not statistically significant. Because of that, these results are interpreted as patterns in the sample and not as factual evidence that the gender wage gap either widens or narrows with education. 
+
+Overall, the regression does not confirm that gender wage gap changes in a systematic way across the levels of education after the sampling variability is accounted for. 
+ 
 
 ## Conclusion
-The results displayed should not be interpreted as casual. The regression shows associations between gender, education and wages, but it does not control for factors such as occupation, experience, hours worked, or industry. Because of this, the analysis cannot determine whether education causes the wage gap to widen, not only that the gap is larger at higher education levels in this data set. 
+In general, these findings can be considered a descriptive picture of relationships, as no causality is established through the regression, because it does not take into account a number of factors such as job type, experience, number of hours worked, industry, etc. Without controlling for them, we can assume neither that the relationship between education and gender wage difference is causal, or that education causes the change in one way or another.We cannot prove whether there is causality here, but we see some kind of dependency.
 
-The results that were produced from both the visualization and the regression indicate that gender is a clear predictor of someones wage levels regardless of their educational background. While wages increase for both men and women with high levels of education, the gender pay gap widens rather than narrows. Because of this, my hypothesis that women still earn less than men regardless of educational attainment is supported. Overall, education does not eliminate or even shrink the gender wage gap, but rather it amplifies it at the bachelors and graduate levels. 
+Based on the regression results, my hypothesis is not statistically supported, even though the descriptive patterns in the data still align with it. 
 
-A limitation of this analysis is that the education categories are broad and income is skewed, which affects mean based comparisons. The dataset lacks information on job type, experience and part time workers. These limitations mean that the results should be interpreted as patterns rather than precise causal estimates. 
+The differences that have emerged as a result of both visualization and regression analysis is still similar. Women get paid less than men at any level of education, and the wage gap seems to increase with education. Although none of the differences found in the regression was statistically significant, the overall picture observed in the sample still matches the initial hypothesis of lower female wages compared to male ones.
 
+Despite the positive outcome, it needs to be taken into account that the data used may have been inaccurate due to several reasons including the fact that the levels of education are too broad, income is skewed, and the dataset does not include key variables like job type, experience or part time status.
+
+With more detailed data, the analysis could better isolate the gender wage gap and provide stronger evidence about how it changes with education. 
+
+## Policy Implications
+Even though the results from this regression were not statistically significant, the descriptive patterns still point to persistent gender differences in wages across education levels.
+
+If these patterns reflect labor market trends, policies such as pay transparency laws, standardized salary bands or targeted equity initiatives in high earning professions could help reduce the unexplained wage disparities among gender. More detailed data would allow policymakers to better understand where interventions are most needed to shorten this gap. 
+
+## Takeaway
+Overall, this project highlights how descriptive patterns can suggest meaningful wage differences even when statistical evidence is limited, highlighting the importance of specific data for understanding gender inequality. 
 
 
 ```{r print-code, ref.label=knitr::all_labels(), echo = TRUE, eval=FALSE}
