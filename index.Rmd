@@ -80,9 +80,16 @@ gender_summary <- gender |>
 ## Visualizing Gender Differences in Wages 
 
 ```{r, echo=FALSE}
+library(scales)
 ggplot(gender_summary, aes(x = SEX, y = mean_wage, fill = SEX)) +
   geom_col() +
-  scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452"))
+  scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452"))+
+  scale_y_continuous(labels = dollar)+
+  labs(
+    x= "Gender",
+    y= "Mean Wages",
+    fill= "Gender"
+  )
 
 ```
 
@@ -155,14 +162,16 @@ ggplot(education_summary, aes(x = educ_group, y = mean_wage, fill = SEX)) +
   scale_fill_manual(values = c("Male" = "#4C72B0", "Female" = "#DD8452")) +
 
   coord_cartesian(ylim = c(0, 150000)) +
+  scale_y_continuous(
+    breaks = seq(0, 150000, 25000),
+    labels = dollar_format(accuracy = 1)
+  )
   labs(
     title = "Mean Wage by Education Level and Gender",
     x = "Education Level",
     y = "Mean Annual Wage",
     fill = "Gender"
-  ) + scale_y_continuous(
-  breaks = seq(0, 150000, 25000),
-  labels = scales::comma
+
 )
 
 ```
