@@ -10,11 +10,11 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 ## Introduction
 
-This project examines how the gender wage gap varies across education levels using data from the American Community Survey. I compare average wages across gender and education groups and estimate a regression model with an interaction between gender and education. The goal is to understand whether higher education narrows or widens the wage gap. 
+This project studies the gender wage gap by education levels using data from the American Community Survey. I compare average wages across gender and education groups and estimate a regression model, including an interaction between gender and education. The goal is to determine whether higher education reduces or increases the wage gap. 
 
-I hypothesize women to earn lower wages than men, even after accounting for education levels. Understanding gender wage disparities is important for evaluating labor market equity, informing public policy, and identifying whether wage gaps persist even after controlling for capital differences such as education. 
+I hypothesize women to earn lower wages than men, even when controlling for education levels. Understanding gender wage disparities is important because it can be used to assess labor market equity, to inform public policy, and to detect whether wage gaps persist even after controlling for differences in human capital such as education. 
 
-The education specific wage gaps matter because higher education is often used to equalize opportunities, so gaps at higher degrees signals deeper structural inequalities that education alone cannot resolve. 
+The wage gaps associated with education are important because higher education is often used to equalize opportunities, so gaps at higher degrees indicate deeper structural inequalities that education alone cannot resolve. 
 
 # Data and Methods 
 
@@ -40,7 +40,7 @@ str("gender_wage_data_small.rds")
 
 ## Raw Wage Differences by Gender
 
-Before running any official models, I analyzed the simple differences in wages between men and women to get an initial idea of the gender gap.
+Before running any official models, I looked at the simple differences of wages between men and women to get an idea of the gender gap.
 ```{r, echo=FALSE}
 library(tidyverse)
 library(haven)
@@ -58,7 +58,7 @@ gender |>
 
 ## Distribution of Annual Wages
 
-This plot summarizes the distribution of annual wages in the data set and showcases a simple view of the outcome variable before breaking it down by gender or education. 
+This plot represents the distribution of the annual salary and displays a simplistic representation of the dependent variable without dividing it according to gender or education. 
 
 ```{r, echo=FALSE}
 gender_clean <- gender |> 
@@ -76,11 +76,12 @@ ggplot(gender_clean, aes(x = INCWAGE)) +
 
 ## Data Cleaning and Preparing Variables
 
-I converted the variables into numeric and factor formats so that they can be used correctly in the calculations and regression models. 
+I transformed the values to numeric and factor types so that they can be appropriately used in the calculations and regression models.
 
 The outcome variable in this analysis is annual wage (INCWAGE), and the main predictors are gender (SEX, coded as Male/Female) and education level (educ_group, grouped into five levels)
 
-If the coefficient on the Female variable is negative and statistically significant (p< 0.05), this supports the hypothesis of a gender wage gap. If it is not statistically significant, the data does not provide evidence of a wage gap. 
+If the coefficient on the Female variable is negative and statistically significant (p< 0.05), this supports the hypothesis of a gender wage gap. If it is not statistically significant, the data does not provide evidence of a wage gap.
+
 ```{r, echo=FALSE}
 library(haven)
 library(dplyr)
